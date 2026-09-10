@@ -1,16 +1,29 @@
 from pathlib import Path
 
-from datasets import Dataset
 import pandas as pd
+from datasets import Dataset
 
 
-def create_split_dataset(data_path:Path):
+def create_split_dataset(data_path:Path, seed:int = 0) -> tuple[Dataset, Dataset, Dataset]:
     dataframe = pd.DataFrame(pd.read_csv(data_path, sep="\t", header=None))
     dataset = Dataset.from_pandas(dataframe)
 
-    print(dataset[0:10])
+    # TODO maybe ad a block to preprocess dataset before split.
+
+    dataset = dataset.shuffle(seed)
+    temp = dataset.train_test_split(seed=seed, test_size=0.3)
+    train = temp["train"]
+    rest = temp["test"]
+
+    temp = rest.train_test_split(seed=seed, test_size=2/3)
+    develop = temp["test"]
+    test = temp["train"]
+
+    #replace with correct subsets
+    return (train, develop, test)
 
 
 if __name__ == "__main__":
+    import pprint
     test_data_path = Path("./XED/AnnotatedData/en-annotated.tsv")
-    create_split_dataset(test_data_path)
+    pprint.pprint(create_split_dataset(test_data_path)[0])
