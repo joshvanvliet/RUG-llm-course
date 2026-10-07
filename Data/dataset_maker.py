@@ -5,7 +5,10 @@ import pandas as pd
 from datasets import Dataset
 
 
-def create_split_dataset(data_path: Path, seed: int = 0, preprocesses: list[Callable[[pd.DataFrame], pd.DataFrame]] | None = None) -> tuple[Dataset, Dataset, Dataset]:
+def create_split_dataset(data_path: Path, 
+                         seed: int = 0, 
+                         preprocesses: list[Callable[[pd.DataFrame], pd.DataFrame]] | None = None,
+                         postprocesses: list[Callable[[Dataset], Dataset]] | None = None) -> tuple[Dataset, Dataset, Dataset]:
     pandas_data: pd.DataFrame = pd.DataFrame(pd.read_csv(data_path, sep="\t", header=None))
     
     if preprocesses != None:
@@ -22,6 +25,11 @@ def create_split_dataset(data_path: Path, seed: int = 0, preprocesses: list[Call
     temp = rest.train_test_split(seed=seed, test_size=2/3)
     develop = temp["test"]
     test = temp["train"]
+
+    if postprocesses != None:
+        for data in (train, develop, test):
+            for process in postprocesses:
+                data = process(data)
     
     return (train, develop, test)
 
