@@ -8,7 +8,7 @@ from datasets import Dataset
 def create_split_dataset(data_path: Path, seed: int = 0, preprocesses: list[Callable[[Dataset], Dataset]] | None = None) -> tuple[Dataset, Dataset, Dataset]:
     dataset = Dataset.from_pandas(pd.DataFrame(pd.read_csv(data_path, sep="\t", header=None)))
     
-    if preprocess != None:
+    if preprocesses != None:
         for process in preprocesses:
             dataset = process(dataset)
     
@@ -28,7 +28,6 @@ if __name__ == "__main__":
     import pprint
     test_data_path = Path("./XED/AnnotatedData/en-annotated.tsv")
     pprint.pprint(create_split_dataset(test_data_path))
-
     for i in create_split_dataset(test_data_path)[0]:
         print(i)
     
