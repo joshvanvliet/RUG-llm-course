@@ -26,18 +26,23 @@ def create_split_dataset(data_path: Path,
     develop = temp["test"]
     test = temp["train"]
 
+    return_value = [train, develop, test]
+
     if postprocesses != None:
-        for data in (train, develop, test):
+        for index, data in enumerate(return_value):
             for process in postprocesses:
-                data = process(data)
+                return_value[index] = process(return_value[index])
     
-    return (train, develop, test)
+    return tuple(return_value)
 
 
 if __name__ == "__main__":
+    from Data.postprocesses import *
     from Data.preprocesses import *
     
     test_data_path = Path("./XED/AnnotatedData/en-annotated.tsv")
-    for i in create_split_dataset(test_data_path, preprocesses=[split_labels])[0]:
+    for i in create_split_dataset(test_data_path, 
+                                  preprocesses=[split_labels],
+                                  postprocesses=[split_allignment])[0]:
         print(i)
     
