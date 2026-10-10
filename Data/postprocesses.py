@@ -4,7 +4,7 @@ from collections import Counter
 
 
 def split_allignment(data: Dataset) -> Dataset:
-    panda: pd.DataFrame = data.to_pandas()
+    panda = data.to_pandas()
     newpandas: list[tuple[str, int]] = []
 
     for index, row in panda.iterrows():
@@ -13,10 +13,10 @@ def split_allignment(data: Dataset) -> Dataset:
         else:
             for label in row["1"]:
                 newpandas.append((row["0"], label))
-    
+
     return Dataset.from_pandas(pd.DataFrame(newpandas))
 
-def delete_dupli_leak(datasets: tuple[Dataset, Dataset, Dataset]) -> tuple[Dataset, Dataset, Dataset]:
+def delete_dupli_leak(datasets: tuple[Dataset, Dataset, Dataset]) -> tuple[Dataset,...]:
     duplicate_counter = Counter()
 
     for dataset in datasets:
@@ -30,4 +30,7 @@ def delete_dupli_leak(datasets: tuple[Dataset, Dataset, Dataset]) -> tuple[Datas
     return_value: list[pd.DataFrame] = []
 
     for dataset in datasets:
-        return_value.append(dataset.to_pandas().)
+        df = dataset.to_pandas()
+        return_value.append(df.loc[~df["0"].isin(duplicate_sentences)])
+
+    return tuple(return_value)
