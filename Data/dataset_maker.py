@@ -8,7 +8,7 @@ from datasets import Dataset
 def create_split_dataset(data_path: Path, 
                          seed: int = 0, 
                          preprocesses: list[Callable[[pd.DataFrame], pd.DataFrame]] | None = None,
-                         postprocesses: list[Callable[[Dataset], Dataset]] | None = None) -> tuple[Dataset, Dataset, Dataset]:
+                         postprocesses: list[Callable[[Dataset], Dataset]] | None = None) -> tuple[Dataset, ...]:
     pandas_data: pd.DataFrame = pd.DataFrame(pd.read_csv(data_path, sep="\t", header=None))
     
     if preprocesses != None:

@@ -16,7 +16,7 @@ def split_allignment(data: Dataset) -> Dataset:
 
     return Dataset.from_pandas(pd.DataFrame(newpandas))
 
-def delete_dupli_leak(datasets: tuple[Dataset, Dataset, Dataset]) -> tuple[Dataset,...]:
+def delete_dupli_leak(datasets: tuple[Dataset, ...]) -> tuple[Dataset,...]:
     duplicate_counter = Counter()
 
     for dataset in datasets:
