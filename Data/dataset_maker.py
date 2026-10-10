@@ -45,4 +45,6 @@ if __name__ == "__main__":
                                   preprocesses=[split_labels],
                                   postprocesses=[split_allignment])[0]:
         print(i)
+
+    delete_dupli_leak(create_split_dataset(test_data_path))
     
