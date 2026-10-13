@@ -8,7 +8,9 @@ from sklearn.preprocessing import MultiLabelBinarizer
 from Data.util import split_labels
 
 
-def create_split_dataset(data_path: Path, 
+def create_split_dataset(english_path: Path,
+                         target_path: Path,
+                         alignement: Path,
                          seed: int = 0, 
                         ) -> tuple[Dataset, ...]:
     pandas_data: pd.DataFrame = split_labels(pd.DataFrame(pd.read_csv(data_path, sep="\t", header=None)))
@@ -36,7 +38,6 @@ def create_split_dataset(data_path: Path,
 
 if __name__ == "__main__":
     """Test Code"""
-    test_data_path = Path("./XED/AnnotatedData/en-annotated.tsv")
-    t, d, te = create_split_dataset(test_data_path)
-    print(t.to_pandas())
-    
+    english_path = Path("./XED/AnnotatedData/en-annotated.tsv")
+    dutch_path = Path("./XED/Projections/nl-projections.tsv")
+    alignment_path = Path("./XED/subtitle-retrieval/students/pairs-nl.txt")
