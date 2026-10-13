@@ -10,10 +10,22 @@ from Data.util import split_labels
 
 def create_split_dataset(english_path: Path,
                          target_path: Path,
-                         alignement: Path,
-                         seed: int = 0, 
+                         alignment_path: Path,
+                         seed: int = 0,
                         ) -> tuple[Dataset, ...]:
-    pandas_data: pd.DataFrame = split_labels(pd.DataFrame(pd.read_csv(data_path, sep="\t", header=None)))
+    english_frame: pd.DataFrame = split_labels(pd.DataFrame(pd.read_csv(english_path, sep="\t", header=None)))
+    target_frame: pd.DataFrame = split_labels(pd.DataFrame(pd.read_csv(target_path, sep="\t", header=None)))
+
+    alignment_frame: pd.DataFrame = pd.DataFrame(pd.read_csv(alignment_path, sep="\t", header=None))
+    alignment_frame = alignment_frame[alignment_frame[0].str.contains("en/", na=False)]
+
+    english_rows = []
+    target_rows = []
+    for index, row in alignment_frame.iterrows():
+        if row[5] in target_frame[0].values and row[4] in english_frame[0].values:
+            print("hit")
+
+    pandas_data: pd.DataFrame = split_labels(pd.DataFrame(pd.read_csv(target_path, sep="\t", header=None)))
     data = Dataset.from_pandas(pandas_data)
     
     y = MultiLabelBinarizer(classes=range(1, 9)).fit_transform(data["1"])
@@ -41,3 +53,6 @@ if __name__ == "__main__":
     english_path = Path("./XED/AnnotatedData/en-annotated.tsv")
     dutch_path = Path("./XED/Projections/nl-projections.tsv")
     alignment_path = Path("./XED/subtitle-retrieval/students/pairs-nl.txt")
+    train, develop, test = create_split_dataset(
+        english_path, dutch_path, alignment_path
+    )
