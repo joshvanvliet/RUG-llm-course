@@ -23,15 +23,17 @@ def delete_dupli_leak(datasets: tuple[Dataset, ...]) -> tuple[Dataset,...]:
     for dataset in datasets:
         duplicate_counter += Counter(set(dataset["0"]))
 
-    duplicate_sentences: list[str] = []
+    duplicate_sentences: set[str] = set()
     for (sentence, count) in duplicate_counter.items():
         if count >= 2:
-            duplicate_sentences.append(sentence)
+            duplicate_sentences.add(sentence)
 
-    return_value: list[pd.DataFrame] = []
+    return_value: list[Dataset] = []
 
     for dataset in datasets:
-        df = dataset.to_pandas()
-        return_value.append(df.loc[~df["0"].isin(duplicate_sentences)])
+        return_value.append(dataset.select([
+            index for index, sentence in enumerate(dataset["0"]) 
+            if sentence not in duplicate_sentences
+        ]))
 
     return tuple(return_value)
