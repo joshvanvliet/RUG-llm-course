@@ -1,6 +1,7 @@
+from collections import Counter
+
 import pandas as pd
 from datasets import Dataset
-from collections import Counter
 
 
 def split_allignment(data: Dataset) -> Dataset:
