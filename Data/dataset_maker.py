@@ -2,7 +2,8 @@ from pathlib import Path
 
 import pandas as pd
 from datasets import Dataset
-from sklearn.model_selection import train_test_split
+from iterstrat.ml_stratifiers import MultilabelStratifiedShuffleSplit
+from sklearn.preprocessing import MultiLabelBinarizer
 
 from Data.util import split_labels
 
@@ -11,23 +12,26 @@ def create_split_dataset(data_path: Path,
                          seed: int = 0, 
                         ) -> tuple[Dataset, ...]:
     pandas_data: pd.DataFrame = split_labels(pd.DataFrame(pd.read_csv(data_path, sep="\t", header=None)))
+    data = Dataset.from_pandas(pandas_data)
+    
+    y = MultiLabelBinarizer(classes=range(1, 9)).fit_transform(data[1])
+    
+    first = MultilabelStratifiedShuffleSplit(
+        n_splits=1, test_size=0.3, random_state=seed
+    )
+    train_idx, rest_idx = next(first.split(y, y))
+    
+    second = MultilabelStratifiedShuffleSplit(
+        n_splits=1, test_size=(1/3), random_state=seed
+    )
+    rest_y = y[rest_idx]
+    dev_relative, test_relative = next(second.split(rest_y, rest_y))
 
-    newpandas: list[tuple[str, int]] = []
-
-    for index, row in pandas_data.iterrows():
-        if len(row[1]) == 1:
-            newpandas.append((row[0], row[1][0]))
-        else:
-            for label in row[1]:
-                newpandas.append((row[0], label))
-
-    pandas_data = pd.DataFrame(newpandas)
-
-    train_frame, rest_frame = train_test_split(pandas_data, train_size=0.7, stratify=pandas_data[1], random_state=seed)
-
-    dev_frame, test_frame = train_test_split(rest_frame, train_size=(2/3), stratify=rest_frame[1], random_state=seed)
-
-    return tuple([Dataset.from_pandas(_) for _ in [train_frame, dev_frame, test_frame]])
+    train = data.select(train_idx.tolist())
+    develop = data.select(rest_idx[dev_relative].tolist())
+    test = data.select(rest_idx[test_relative].tolist())
+    
+    return train, develop, test
 
 
 if __name__ == "__main__":
