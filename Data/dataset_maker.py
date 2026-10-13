@@ -14,7 +14,7 @@ def create_split_dataset(data_path: Path,
     pandas_data: pd.DataFrame = split_labels(pd.DataFrame(pd.read_csv(data_path, sep="\t", header=None)))
     data = Dataset.from_pandas(pandas_data)
     
-    y = MultiLabelBinarizer(classes=range(1, 9)).fit_transform(data[1])
+    y = MultiLabelBinarizer(classes=range(1, 9)).fit_transform(data["1"])
     
     first = MultilabelStratifiedShuffleSplit(
         n_splits=1, test_size=0.3, random_state=seed
@@ -37,5 +37,6 @@ def create_split_dataset(data_path: Path,
 if __name__ == "__main__":
     """Test Code"""
     test_data_path = Path("./XED/AnnotatedData/en-annotated.tsv")
-    create_split_dataset(test_data_path)
+    t, d, te = create_split_dataset(test_data_path)
+    print(t.to_pandas())
     
