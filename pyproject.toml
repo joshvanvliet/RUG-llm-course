@@ -9,6 +9,7 @@ dependencies = [
     "isort>=9.0.1",
     "iterative-stratification>=0.1.9",
     "pandas>=3.0.5",
+    "rapidfuzz>=3.0.0",
     "ruff>=0.16.10",
     "scikit-learn>=1.9.1",
     "torch>=2.14.0",
