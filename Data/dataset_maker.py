@@ -23,15 +23,15 @@ def create_split_dataset(english_path: Path,
     target_rows = []
     for index, row in alignment_frame.iterrows():
         if row[5] in target_frame[0].values and row[4] in english_frame[0].values:
-            english_rows.append(english_frame[english_frame[0] == row[4]])
-            target_rows.append(target_frame[target_frame[0] == row[5]])
+            english_rows += english_frame[english_frame[0] == row[4]].values.tolist()
+            target_rows += target_frame[target_frame[0] == row[5]].values.tolist()
 
     english_frame = pd.DataFrame(english_rows)
     target_frame = pd.DataFrame(target_rows)
 
     return_value = []
     for data in (Dataset.from_pandas(english_frame), Dataset.from_pandas(target_frame)):
-        y = MultiLabelBinarizer(classes=range(1, 9)).fit_transform(data[1])
+        y = MultiLabelBinarizer(classes=range(1, 9)).fit_transform(data["1"])
         
         first = MultilabelStratifiedShuffleSplit(
             n_splits=1, test_size=0.3, random_state=seed
