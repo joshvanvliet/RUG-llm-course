@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# Secrets / tokens
+.env
+
+# Model weights and training artefacts
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.ckpt
+outputs/
+checkpoints/
+wandb/
+
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store
