@@ -3,9 +3,12 @@ from Data.dataset_maker import create_split_dataset
 from Data.paths import XED_DIR
 from datasets import concatenate_datasets
 from peft import LoraConfig
-from trl import SFTTrainer
+from trl import SFTTrainer, SFTConfig
 
-EMOTIONS = {
+"""
+Individual models are trained for the English dataset, the Dutch dataset and the biligual dataset (both English and Dutch).
+These datasets consists of sentences in the according language followed by which emotions relate to that sentence. The emotions available are:
+EMOTIONS =
     1: "Anger",
     2: "Anticipation",
     3: "Disgust",
@@ -14,7 +17,9 @@ EMOTIONS = {
     6: "Sadness",
     7: "Surprise",
     8: "Trust"
-}
+
+The models are trained to give a multi label of emotions when input a sentence of according language.
+"""
 
 MODEL_ID = "google/gemma-4-E4B-it"
 
@@ -37,27 +42,64 @@ def format_dataset(dataset):
     )
 
 
-def train_PEFT(train_data):
-    model = load_gemma_4B()
+def train_PEFT(train_data, output_dir):
+    model, processor = load_gemma_4B(MODEL_ID)
 
-    print([
-        name for name, module in model.named_modules()
-        if "proj" in name
-    ][:30])
+    # Configure Lora
+    peft_config = LoraConfig(
+    r=16,
+    lora_alpha=16,
+    lora_dropout=0.05,
+    bias="none",
+    task_type="CAUSAL_LM",
+    target_modules=r".*language_model.*\.(q_proj|k_proj|v_proj|o_proj|gate_proj|up_proj|down_proj)"
+    )
+
+    # Configure training
+    training_args = SFTConfig(
+        output_dir=output_dir,
+        num_train_epochs=3,
+        per_device_train_batch_size=1,
+        gradient_accumulation_steps=8,
+        learning_rate=2e-4,
+        logging_steps=10,
+        save_strategy="epoch",
+        max_length=128,
+        bf16=True,
+        completion_only_loss=True,
+        report_to="none"
+    )
+
+    # Create trainer
+    trainer = SFTTrainer(
+        model=model,
+        args=training_args,
+        train_dataset=train_data,
+        peft_config=peft_config,
+        processing_class=processor.tokenizer
+    )
+
+    # Start training
+    trainer.train()
+
+    return trainer.model
 
 
 def train_PEFT_EN(train_data_EN):
-    trained_model = train_PEFT(train_data_EN)
+    output_dir = "./trained_gemma_EN"
+    trained_model = train_PEFT(train_data_EN, output_dir)
     trained_model.save_pretrained("./trained_gemma_EN")
 
 
 def train_PEFT_NL(train_data_NL):
-    trained_model = train_PEFT(train_data_NL)
+    output_dir = "./trained_gemma_NL"
+    trained_model = train_PEFT(train_data_NL, output_dir)
     trained_model.save_pretrained("./trained_gemma_NL")
 
 
 def train_PEFT_BI(train_data_BI):
-    trained_model = train_PEFT(train_data_BI)
+    output_dir = "./trained_gemma_BI"
+    trained_model = train_PEFT(train_data_BI, output_dir)
     trained_model.save_pretrained("./trained_gemma_BI")
 
 
