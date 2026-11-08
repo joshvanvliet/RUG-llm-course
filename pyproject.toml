@@ -5,22 +5,37 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "accelerate>=1.15.0",
     "datasets>=5.0.1",
     "isort>=9.0.1",
     "iterative-stratification>=0.1.9",
     "pandas>=3.0.5",
+    "peft>=0.21.2",
+    "pillow>=13.0.0",
     "pyyaml>=6.0.3",
     "rapidfuzz>=3.0.0",
     "ruff>=0.16.10",
     "scikit-learn>=1.9.1",
     "torch>=2.14.0",
+    "torchvision>=0.29.1",
     "transformers>=5.17.0",
+    "trl>=1.17.1",
 ]
 
 [dependency-groups]
 dev = [
     "pytest>=8.0.0",
 ]
+
+# PyPI only has CPU torch for Windows, Linux wheels include CUDA
+[tool.uv.sources]
+torch = [{ index = "pytorch-cu130", marker = "sys_platform == 'win32'" }]
+torchvision = [{ index = "pytorch-cu130", marker = "sys_platform == 'win32'" }]
+
+[[tool.uv.index]]
+name = "pytorch-cu130"
+url = "https://download.pytorch.org/whl/cu130"
+explicit = true
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

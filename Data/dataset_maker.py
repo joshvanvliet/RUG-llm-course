@@ -12,6 +12,7 @@ from Data.paths import SPLITS_DIR, XED_DIR
 from Data.util import split_labels
 
 SPLIT_NAMES = ("train", "develop", "test")
+EMOTIONS = ["Anger", "Anticipation", "Disgust", "Fear", "Joy", "Sadness", "Surprise", "Trust"]
 
 
 def normalise_sentence(sentence: str) -> str:
@@ -162,13 +163,17 @@ def create_split_dataset(english_path: Path,
     return english_splits, target_splits
 
 
-if __name__ == "__main__":
-    english_path = XED_DIR / "AnnotatedData" / "en-annotated.tsv"
-    dutch_path = XED_DIR / "Projections" / "nl-projections.tsv"
-    alignment_path = XED_DIR / "subtitle-retrieval" / "students" / "pairs-nl.txt"
-    split_path = SPLITS_DIR / "nl.tsv"
-    english_splits, dutch_splits = create_split_dataset(
-        english_path, dutch_path, alignment_path, split_path
+# (train, develop, test) with row i being the same aligned pair
+def load_dutch_splits() -> tuple[tuple[Dataset, ...], ...]:
+    return create_split_dataset(
+        XED_DIR / "AnnotatedData" / "en-annotated.tsv",
+        XED_DIR / "Projections" / "nl-projections.tsv",
+        XED_DIR / "subtitle-retrieval" / "students" / "pairs-nl.txt",
+        SPLITS_DIR / "nl.tsv",
     )
+
+
+if __name__ == "__main__":
+    english_splits, dutch_splits = load_dutch_splits()
     for name, dataset in zip(SPLIT_NAMES, english_splits):
         print(name, len(dataset))
