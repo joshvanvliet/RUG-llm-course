@@ -7,6 +7,8 @@ __pycache__/
 
 # Secrets / tokens
 .env
+.venvLLM
+.venv
 
 # Model weights and training artefacts
 *.safetensors
@@ -17,6 +19,8 @@ __pycache__/
 outputs/
 checkpoints/
 wandb/
+trained_gemma_*/
+logs/
 
 # Editors / OS
 .idea/
